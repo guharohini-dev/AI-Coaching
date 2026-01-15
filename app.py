@@ -92,6 +92,10 @@ if 'messages' not in st.session_state:
     st.session_state.messages = []
 if 'session_complete' not in st.session_state:
     st.session_state.session_complete = False
+if 'ai_assessment' not in st.session_state:
+    st.session_state.ai_assessment = None
+if 'skill_level' not in st.session_state:
+    st.session_state.skill_level = 'intermediate'  # beginner, intermediate, advanced
 
 # HCP Personas Data
 personas = {
@@ -138,6 +142,185 @@ def generate_ai_response(persona_name, user_message):
         f"What kind of monitoring is required? I need to understand the practical implications for my practice."
     ]
     return random.choice(responses)
+
+# AI Assessment Generator
+def generate_ai_assessment(messages, persona):
+    """Generate comprehensive AI assessment based on conversation"""
+    num_messages = len([m for m in messages if m['role'] == 'user'])
+    
+    # Simulate different assessment levels
+    base_scores = {
+        'Clinical Knowledge': random.randint(75, 95),
+        'Rapport Building': random.randint(80, 95),
+        'Objection Handling': random.randint(70, 90),
+        'Value Communication': random.randint(75, 92),
+        'Compliance & Ethics': random.randint(90, 98)
+    }
+    
+    # Calculate overall score
+    overall_score = sum(base_scores.values()) // len(base_scores)
+    
+    # Determine weak areas (below 80)
+    weak_areas = [area for area, score in base_scores.items() if score < 80]
+    strong_areas = [area for area, score in base_scores.items() if score >= 90]
+    
+    # Generate personalized insights
+    insights = []
+    
+    if num_messages < 5:
+        insights.append("⚠️ **Session Length:** Consider engaging longer with the HCP. Aim for 8-12 exchanges to fully explore needs and address concerns.")
+    
+    if base_scores['Clinical Knowledge'] < 85:
+        insights.append("📚 **Clinical Knowledge Gap:** Review the latest clinical trial data and real-world evidence studies for this therapy area.")
+    
+    if base_scores['Objection Handling'] < 85:
+        insights.append("🎯 **Objection Handling:** Practice preemptively addressing common objections before they're raised. Use the LAER model (Listen, Acknowledge, Explore, Respond).")
+    
+    if base_scores['Value Communication'] < 85:
+        insights.append("💡 **Value Communication:** Strengthen your economic value proposition. Focus on patient outcomes, cost-effectiveness, and quality of life improvements.")
+    
+    if overall_score >= 90:
+        insights.append("🌟 **Excellent Performance:** You're ready for more challenging scenarios with complex multi-stakeholder interactions.")
+    
+    # Generate LMS recommendations based on weak areas
+    lms_recommendations = []
+    
+    for area in weak_areas:
+        if area == 'Clinical Knowledge':
+            lms_recommendations.append({
+                'title': 'Advanced Clinical Data Interpretation',
+                'type': 'Course',
+                'duration': '45 min',
+                'priority': 'High',
+                'link': 'https://lms.example.com/clinical-data',
+                'description': 'Deep dive into Phase III trial results, statistical significance, and NNT calculations'
+            })
+            lms_recommendations.append({
+                'title': 'Mechanism of Action Masterclass',
+                'type': 'Video',
+                'duration': '20 min',
+                'priority': 'High',
+                'link': 'https://lms.example.com/moa-masterclass',
+                'description': 'Visual explanation of drug mechanisms and how to communicate them effectively'
+            })
+        
+        if area == 'Objection Handling':
+            lms_recommendations.append({
+                'title': 'LAER Objection Handling Framework',
+                'type': 'Interactive Module',
+                'duration': '60 min',
+                'priority': 'High',
+                'link': 'https://lms.example.com/laer-framework',
+                'description': 'Master the Listen-Acknowledge-Explore-Respond methodology with practice scenarios'
+            })
+            lms_recommendations.append({
+                'title': 'Top 20 HCP Objections & Responses',
+                'type': 'Reference Guide',
+                'duration': '15 min',
+                'priority': 'Medium',
+                'link': 'https://lms.example.com/objection-library',
+                'description': 'Comprehensive library of proven responses to common objections'
+            })
+        
+        if area == 'Value Communication':
+            lms_recommendations.append({
+                'title': 'Economic Value Proposition Development',
+                'type': 'Course',
+                'duration': '50 min',
+                'priority': 'High',
+                'link': 'https://lms.example.com/value-prop',
+                'description': 'Learn to articulate cost-effectiveness, budget impact, and patient outcomes'
+            })
+        
+        if area == 'Rapport Building':
+            lms_recommendations.append({
+                'title': 'Building Trust with Healthcare Professionals',
+                'type': 'Video Series',
+                'duration': '35 min',
+                'priority': 'Medium',
+                'link': 'https://lms.example.com/rapport-building',
+                'description': 'Communication techniques for establishing credibility and trust quickly'
+            })
+    
+    # Generate next scenario recommendations
+    scenario_recommendations = []
+    
+    if overall_score >= 88:
+        scenario_recommendations = [
+            {
+                'title': 'Multi-Stakeholder Account Meeting',
+                'difficulty': 'Advanced',
+                'description': 'Navigate complex group dynamics with department heads, formulary committee members, and budget holders',
+                'personas': ['Chief of Cardiology', 'Pharmacy Director', 'CFO'],
+                'estimated_time': '25-30 min',
+                'skills_developed': ['Stakeholder management', 'Budget negotiation', 'Group influence']
+            },
+            {
+                'title': 'Competitive Displacement Scenario',
+                'difficulty': 'Advanced',
+                'description': 'Convince an HCP to switch from a well-established competitor product',
+                'personas': ['Dr. Sarah Chen (Advanced Mode)'],
+                'estimated_time': '20-25 min',
+                'skills_developed': ['Competitive positioning', 'Change management', 'Risk mitigation']
+            },
+            {
+                'title': 'Crisis Management: Adverse Event Discussion',
+                'difficulty': 'Expert',
+                'description': 'Address concerns following reported adverse events while maintaining trust',
+                'personas': ['Dr. Emily Watson (Concerned Mode)'],
+                'estimated_time': '15-20 min',
+                'skills_developed': ['Crisis communication', 'Empathy under pressure', 'Regulatory compliance']
+            }
+        ]
+    elif overall_score >= 80:
+        scenario_recommendations = [
+            {
+                'title': 'Deep Objection Handling Practice',
+                'difficulty': 'Intermediate-Advanced',
+                'description': 'Face 5+ consecutive objections from a highly skeptical HCP',
+                'personas': ['Dr. Sarah Chen', 'Dr. Emily Watson'],
+                'estimated_time': '15-20 min',
+                'skills_developed': ['Persistence', 'Objection reframing', 'Emotional resilience']
+            },
+            {
+                'title': 'Payer Access Discussion',
+                'difficulty': 'Intermediate',
+                'description': 'Navigate reimbursement and formulary access conversations',
+                'personas': ['Dr. Michael Roberts (Budget-Conscious)'],
+                'estimated_time': '15-18 min',
+                'skills_developed': ['Health economics', 'Value communication', 'Access strategies']
+            }
+        ]
+    else:
+        scenario_recommendations = [
+            {
+                'title': 'Foundation Practice: Product Introduction',
+                'difficulty': 'Beginner-Intermediate',
+                'description': 'Build confidence with structured product presentations',
+                'personas': ['Dr. Michael Roberts (Receptive Mode)'],
+                'estimated_time': '12-15 min',
+                'skills_developed': ['Message clarity', 'Feature-benefit linking', 'Closing techniques']
+            },
+            {
+                'title': 'Single Objection Focus',
+                'difficulty': 'Intermediate',
+                'description': 'Practice addressing one specific objection type in depth',
+                'personas': ['Dr. Michael Roberts'],
+                'estimated_time': '10-12 min',
+                'skills_developed': ['Focused objection mastery', 'Confidence building']
+            }
+        ]
+    
+    return {
+        'overall_score': overall_score,
+        'category_scores': base_scores,
+        'weak_areas': weak_areas,
+        'strong_areas': strong_areas,
+        'insights': insights,
+        'lms_recommendations': lms_recommendations,
+        'scenario_recommendations': scenario_recommendations,
+        'skill_level_update': 'advanced' if overall_score >= 88 else 'intermediate' if overall_score >= 75 else 'beginner'
+    }
 
 # Sidebar Navigation
 with st.sidebar:
@@ -326,6 +509,13 @@ elif st.session_state.page == 'personas':
         
         with col3:
             if st.button("✅ End Session", use_container_width=True, type="primary"):
+                # Generate AI assessment
+                with st.spinner("🤖 AI is analyzing your performance..."):
+                    time.sleep(2)  # Simulate processing
+                    st.session_state.ai_assessment = generate_ai_assessment(
+                        st.session_state.messages, 
+                        personas[st.session_state.selected_persona]
+                    )
                 st.session_state.conversation_active = False
                 st.session_state.session_complete = True
                 st.rerun()
@@ -390,33 +580,50 @@ elif st.session_state.page == 'personas':
     
     # RESULTS SCREEN
     elif st.session_state.session_complete:
-        st.markdown('<div class="main-header">📊 Session Performance Report</div>', unsafe_allow_html=True)
-        st.markdown(f'<div class="sub-header">Detailed analysis of your interaction with {st.session_state.selected_persona}</div>', unsafe_allow_html=True)
+        assessment = st.session_state.ai_assessment
+        
+        st.markdown('<div class="main-header">🤖 AI-Powered Performance Analysis</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="sub-header">Comprehensive assessment of your interaction with {st.session_state.selected_persona}</div>', unsafe_allow_html=True)
+        
+        # AI Insights Banner
+        st.info("🤖 **AI Assessment:** This report was generated using advanced AI analysis of your conversation, evaluating multiple dimensions including content, delivery, and strategic approach.")
         
         # Overall Metrics
         col1, col2, col3 = st.columns(3)
         
         with col1:
-            st.metric(label="Overall Score", value="85", delta="5")
+            score_delta = assessment['overall_score'] - 80  # Compare to baseline
+            st.metric(label="Overall Score", value=assessment['overall_score'], delta=f"{score_delta:+d} vs baseline")
         
         with col2:
-            st.metric(label="Session Duration", value="8:24", delta=None)
+            session_length = len([m for m in st.session_state.messages if m['role'] == 'user'])
+            st.metric(label="Conversation Depth", value=f"{session_length} exchanges", delta=None)
         
         with col3:
-            st.metric(label="Objections Handled", value="7", delta="2")
+            skill_level = assessment['skill_level_update'].capitalize()
+            st.metric(label="Skill Level", value=skill_level, delta=None)
         
         st.markdown("<br>", unsafe_allow_html=True)
+        
+        # AI Insights Section
+        if assessment['insights']:
+            st.markdown("### 🎯 AI-Generated Insights")
+            for insight in assessment['insights']:
+                st.markdown(f"""
+                <div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 1rem; border-radius: 0.25rem; margin: 0.5rem 0;">
+                    {insight}
+                </div>
+                """, unsafe_allow_html=True)
+            st.markdown("<br>", unsafe_allow_html=True)
         
         # Performance Breakdown
         st.markdown("### 📈 Performance Breakdown")
         
-        metrics_data = {
-            'Category': ['Clinical Knowledge', 'Rapport Building', 'Objection Handling', 'Value Communication', 'Compliance & Ethics'],
-            'Your Score': [87, 92, 78, 85, 95],
+        df_metrics = pd.DataFrame({
+            'Category': list(assessment['category_scores'].keys()),
+            'Your Score': list(assessment['category_scores'].values()),
             'Benchmark': [85, 80, 85, 80, 90]
-        }
-        
-        df_metrics = pd.DataFrame(metrics_data)
+        })
         
         fig = go.Figure()
         fig.add_trace(go.Bar(
@@ -442,69 +649,161 @@ elif st.session_state.page == 'personas':
         
         st.plotly_chart(fig, use_container_width=True)
         
+        # Adaptive Learning Path Section
+        if assessment['weak_areas']:
+            st.markdown("### 📚 Recommended LMS Modules (Based on Weak Areas)")
+            st.markdown(f"""
+            <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 1rem; border-radius: 0.25rem; margin-bottom: 1rem;">
+                <strong>⚠️ Development Areas Identified:</strong> {', '.join(assessment['weak_areas'])}<br>
+                The AI has curated personalized learning content to help you improve in these areas.
+            </div>
+            """, unsafe_allow_html=True)
+            
+            for idx, module in enumerate(assessment['lms_recommendations']):
+                priority_color = {
+                    'High': '#ef4444',
+                    'Medium': '#f59e0b',
+                    'Low': '#10b981'
+                }
+                
+                with st.expander(f"📖 {module['title']} ({module['type']}) - {module['duration']}", expanded=(idx == 0)):
+                    col1, col2 = st.columns([3, 1])
+                    
+                    with col1:
+                        st.markdown(f"**Description:** {module['description']}")
+                        st.markdown(f"**Priority:** <span style='color: {priority_color[module['priority']]};'>●</span> {module['priority']}", unsafe_allow_html=True)
+                    
+                    with col2:
+                        if st.button(f"🔗 Access Module", key=f"lms_{idx}", use_container_width=True, type="primary"):
+                            st.success(f"✅ Opening: {module['title']} (Demo mode)")
+                            st.markdown(f"[Click here to access]({module['link']})")
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+        
+        # Advanced Scenario Recommendations
+        if assessment['scenario_recommendations']:
+            st.markdown("### 🚀 Next Challenge: Recommended Scenarios")
+            
+            if assessment['overall_score'] >= 88:
+                st.markdown("""
+                <div class="success-box">
+                    <strong>🌟 Excellent Performance!</strong> You're ready for advanced scenarios. 
+                    The AI recommends increasing complexity to continue your growth.
+                </div>
+                """, unsafe_allow_html=True)
+            elif assessment['overall_score'] >= 80:
+                st.markdown("""
+                <div style="background-color: #dbeafe; border-left: 4px solid #3b82f6; padding: 1rem; border-radius: 0.25rem; margin-bottom: 1rem;">
+                    <strong>💪 Strong Performance!</strong> You're ready for intermediate-advanced scenarios 
+                    that will sharpen your skills further.
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown("""
+                <div class="warning-box">
+                    <strong>📈 Building Foundation</strong> Focus on these scenarios to strengthen core competencies 
+                    before moving to advanced challenges.
+                </div>
+                """, unsafe_allow_html=True)
+            
+            for idx, scenario in enumerate(assessment['scenario_recommendations']):
+                difficulty_emoji = {
+                    'Beginner-Intermediate': '🟢',
+                    'Intermediate': '🟡',
+                    'Intermediate-Advanced': '🟠',
+                    'Advanced': '🔴',
+                    'Expert': '🔴🔴'
+                }
+                
+                st.markdown(f"""
+                <div class="persona-card">
+                    <h4>{difficulty_emoji.get(scenario['difficulty'], '🟡')} {scenario['title']}</h4>
+                    <p><strong>Difficulty:</strong> {scenario['difficulty']} | <strong>Time:</strong> {scenario['estimated_time']}</p>
+                    <p>{scenario['description']}</p>
+                    <p><strong>Personas:</strong> {', '.join(scenario['personas'])}</p>
+                    <p><strong>Skills Developed:</strong> {', '.join(scenario['skills_developed'])}</p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                col1, col2 = st.columns([1, 4])
+                with col1:
+                    if st.button(f"▶️ Start", key=f"scenario_{idx}", use_container_width=True):
+                        st.success(f"✅ Launching: {scenario['title']} (Demo mode)")
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+        
         # Strengths and Development Areas
         col1, col2 = st.columns(2)
         
         with col1:
             st.markdown("### ✅ Key Strengths")
-            st.markdown("""
-            <div class="success-box">
-                <strong>Excellent rapport building</strong><br>
-                Established trust quickly with appropriate empathy
-            </div>
-            <div class="success-box">
-                <strong>Strong clinical knowledge</strong><br>
-                Accurately referenced clinical trial data
-            </div>
-            <div class="success-box">
-                <strong>Compliance adherence</strong><br>
-                Maintained ethical boundaries throughout
-            </div>
-            """, unsafe_allow_html=True)
+            if assessment['strong_areas']:
+                for area in assessment['strong_areas']:
+                    st.markdown(f"""
+                    <div class="success-box">
+                        <strong>{area}</strong><br>
+                        Excellent performance - maintain this strength
+                    </div>
+                    """, unsafe_allow_html=True)
+            else:
+                st.markdown("""
+                <div class="success-box">
+                    <strong>Consistent Performance</strong><br>
+                    Good baseline across all areas
+                </div>
+                """, unsafe_allow_html=True)
         
         with col2:
-            st.markdown("### 🎯 Areas for Development")
-            st.markdown("""
-            <div class="warning-box">
-                <strong>Objection handling timing</strong><br>
-                Consider addressing objections earlier in conversation
-            </div>
-            <div class="warning-box">
-                <strong>Value articulation</strong><br>
-                Strengthen economic and patient outcome messaging
-            </div>
-            <div class="warning-box">
-                <strong>Question depth</strong><br>
-                Ask more probing questions to uncover needs
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown("### 🎯 Focus Areas")
+            if assessment['weak_areas']:
+                for area in assessment['weak_areas']:
+                    st.markdown(f"""
+                    <div class="warning-box">
+                        <strong>{area}</strong><br>
+                        Review recommended LMS modules above
+                    </div>
+                    """, unsafe_allow_html=True)
+            else:
+                st.markdown("""
+                <div class="success-box">
+                    <strong>No Critical Gaps</strong><br>
+                    Ready for advanced scenarios
+                </div>
+                """, unsafe_allow_html=True)
         
         # Manager Feedback
         st.markdown("### 💬 Manager's Coaching Notes")
         st.info("""
         **Great progress on building rapport with skeptical HCPs!** Your clinical knowledge is a real strength.
         
-        **Focus area:** Work on preemptively addressing common objections before they're raised. Schedule a coaching session to practice advanced objection handling techniques.
+        **Focus area:** Work on preemptively addressing common objections before they're raised. Complete the recommended LMS modules this week and schedule a coaching session to practice advanced objection handling techniques.
         
         *- Sarah Johnson, Sales Manager*
         """)
         
         # Action Buttons
-        col1, col2 = st.columns(2)
+        st.markdown("<br>", unsafe_allow_html=True)
+        col1, col2, col3 = st.columns(3)
         
         with col1:
-            if st.button("🔄 Practice with Another Persona", use_container_width=True, type="primary"):
+            if st.button("📚 Go to LMS Dashboard", use_container_width=True, type="primary"):
+                st.success("✅ Redirecting to Learning Management System... (Demo mode)")
+        
+        with col2:
+            if st.button("🔄 Practice Another Scenario", use_container_width=True):
                 st.session_state.session_complete = False
                 st.session_state.selected_persona = None
                 st.session_state.messages = []
+                st.session_state.ai_assessment = None
                 st.rerun()
         
-        with col2:
+        with col3:
             if st.button("🏠 Return to Dashboard", use_container_width=True):
                 st.session_state.page = 'dashboard'
                 st.session_state.session_complete = False
                 st.session_state.selected_persona = None
                 st.session_state.messages = []
+                st.session_state.ai_assessment = None
                 st.rerun()
 
 # ANALYTICS PAGE
