@@ -94,8 +94,6 @@ if 'session_complete' not in st.session_state:
     st.session_state.session_complete = False
 if 'ai_assessment' not in st.session_state:
     st.session_state.ai_assessment = None
-if 'skill_level' not in st.session_state:
-    st.session_state.skill_level = 'intermediate'  # beginner, intermediate, advanced
 
 # HCP Personas Data
 personas = {
@@ -132,184 +130,88 @@ personas = {
 def generate_ai_response(persona_name, user_message):
     """Simulate AI responses based on persona"""
     responses = [
-        f"I appreciate the information, but I'd need to see more robust clinical trial data before considering this for my patients. What Phase III results do you have?",
-        f"That's interesting. How does this compare to the current standard of care in terms of efficacy and safety profile?",
-        f"I'm concerned about the cost. Many of my patients struggle with medication affordability. What patient assistance programs are available?",
-        f"Can you walk me through the mechanism of action? I want to understand how this differs from existing treatments.",
-        f"What's the evidence on long-term outcomes? I'm particularly interested in real-world data beyond the clinical trials.",
-        f"I've had good results with the current treatment protocol. What would be the compelling reason for me to switch?",
-        f"How does this fit into the current treatment guidelines? Has it been incorporated into any professional society recommendations?",
-        f"What kind of monitoring is required? I need to understand the practical implications for my practice."
+        "I appreciate the information, but I'd need to see more robust clinical trial data before considering this for my patients. What Phase III results do you have?",
+        "That's interesting. How does this compare to the current standard of care in terms of efficacy and safety profile?",
+        "I'm concerned about the cost. Many of my patients struggle with medication affordability. What patient assistance programs are available?",
+        "Can you walk me through the mechanism of action? I want to understand how this differs from existing treatments.",
+        "What's the evidence on long-term outcomes? I'm particularly interested in real-world data beyond the clinical trials.",
+        "I've had good results with the current treatment protocol. What would be the compelling reason for me to switch?",
+        "How does this fit into the current treatment guidelines? Has it been incorporated into any professional society recommendations?",
+        "What kind of monitoring is required? I need to understand the practical implications for my practice."
     ]
     return random.choice(responses)
 
-# AI Assessment Generator
+# AI Assessment Generator - Generic Assessment
 def generate_ai_assessment(messages, persona):
-    """Generate comprehensive AI assessment based on conversation"""
-    num_messages = len([m for m in messages if m['role'] == 'user'])
+    """Generate a generic comprehensive AI assessment"""
     
-    # Simulate different assessment levels
+    # Fixed assessment scores for demo
     base_scores = {
-        'Clinical Knowledge': random.randint(75, 95),
-        'Rapport Building': random.randint(80, 95),
-        'Objection Handling': random.randint(70, 90),
-        'Value Communication': random.randint(75, 92),
-        'Compliance & Ethics': random.randint(90, 98)
+        'Clinical Knowledge': 87,
+        'Rapport Building': 92,
+        'Objection Handling': 78,
+        'Value Communication': 85,
+        'Compliance & Ethics': 95
     }
     
-    # Calculate overall score
-    overall_score = sum(base_scores.values()) // len(base_scores)
+    overall_score = 87
+    weak_areas = ['Objection Handling']
+    strong_areas = ['Rapport Building', 'Compliance & Ethics']
     
-    # Determine weak areas (below 80)
-    weak_areas = [area for area, score in base_scores.items() if score < 80]
-    strong_areas = [area for area, score in base_scores.items() if score >= 90]
+    # Generic insights
+    insights = [
+        "🎯 **Objection Handling:** Practice preemptively addressing common objections before they're raised. Use the LAER model (Listen, Acknowledge, Explore, Respond).",
+        "💪 **Strong Rapport Building:** Excellent ability to establish trust and credibility quickly with healthcare professionals.",
+        "✅ **Compliance Excellence:** Outstanding adherence to regulatory and ethical guidelines throughout the conversation."
+    ]
     
-    # Generate personalized insights
-    insights = []
+    # LMS recommendations for weak areas
+    lms_recommendations = [
+        {
+            'title': 'LAER Objection Handling Framework',
+            'type': 'Interactive Module',
+            'duration': '60 min',
+            'priority': 'High',
+            'link': 'https://lms.example.com/laer-framework',
+            'description': 'Master the Listen-Acknowledge-Explore-Respond methodology with practice scenarios'
+        },
+        {
+            'title': 'Top 20 HCP Objections & Responses',
+            'type': 'Reference Guide',
+            'duration': '15 min',
+            'priority': 'High',
+            'link': 'https://lms.example.com/objection-library',
+            'description': 'Comprehensive library of proven responses to common objections'
+        },
+        {
+            'title': 'Advanced Objection Handling Role-Plays',
+            'type': 'Video Series',
+            'duration': '45 min',
+            'priority': 'Medium',
+            'link': 'https://lms.example.com/objection-videos',
+            'description': 'Watch expert sales reps handle difficult objections in real-world scenarios'
+        }
+    ]
     
-    if num_messages < 5:
-        insights.append("⚠️ **Session Length:** Consider engaging longer with the HCP. Aim for 8-12 exchanges to fully explore needs and address concerns.")
-    
-    if base_scores['Clinical Knowledge'] < 85:
-        insights.append("📚 **Clinical Knowledge Gap:** Review the latest clinical trial data and real-world evidence studies for this therapy area.")
-    
-    if base_scores['Objection Handling'] < 85:
-        insights.append("🎯 **Objection Handling:** Practice preemptively addressing common objections before they're raised. Use the LAER model (Listen, Acknowledge, Explore, Respond).")
-    
-    if base_scores['Value Communication'] < 85:
-        insights.append("💡 **Value Communication:** Strengthen your economic value proposition. Focus on patient outcomes, cost-effectiveness, and quality of life improvements.")
-    
-    if overall_score >= 90:
-        insights.append("🌟 **Excellent Performance:** You're ready for more challenging scenarios with complex multi-stakeholder interactions.")
-    
-    # Generate LMS recommendations based on weak areas
-    lms_recommendations = []
-    
-    for area in weak_areas:
-        if area == 'Clinical Knowledge':
-            lms_recommendations.append({
-                'title': 'Advanced Clinical Data Interpretation',
-                'type': 'Course',
-                'duration': '45 min',
-                'priority': 'High',
-                'link': 'https://lms.example.com/clinical-data',
-                'description': 'Deep dive into Phase III trial results, statistical significance, and NNT calculations'
-            })
-            lms_recommendations.append({
-                'title': 'Mechanism of Action Masterclass',
-                'type': 'Video',
-                'duration': '20 min',
-                'priority': 'High',
-                'link': 'https://lms.example.com/moa-masterclass',
-                'description': 'Visual explanation of drug mechanisms and how to communicate them effectively'
-            })
-        
-        if area == 'Objection Handling':
-            lms_recommendations.append({
-                'title': 'LAER Objection Handling Framework',
-                'type': 'Interactive Module',
-                'duration': '60 min',
-                'priority': 'High',
-                'link': 'https://lms.example.com/laer-framework',
-                'description': 'Master the Listen-Acknowledge-Explore-Respond methodology with practice scenarios'
-            })
-            lms_recommendations.append({
-                'title': 'Top 20 HCP Objections & Responses',
-                'type': 'Reference Guide',
-                'duration': '15 min',
-                'priority': 'Medium',
-                'link': 'https://lms.example.com/objection-library',
-                'description': 'Comprehensive library of proven responses to common objections'
-            })
-        
-        if area == 'Value Communication':
-            lms_recommendations.append({
-                'title': 'Economic Value Proposition Development',
-                'type': 'Course',
-                'duration': '50 min',
-                'priority': 'High',
-                'link': 'https://lms.example.com/value-prop',
-                'description': 'Learn to articulate cost-effectiveness, budget impact, and patient outcomes'
-            })
-        
-        if area == 'Rapport Building':
-            lms_recommendations.append({
-                'title': 'Building Trust with Healthcare Professionals',
-                'type': 'Video Series',
-                'duration': '35 min',
-                'priority': 'Medium',
-                'link': 'https://lms.example.com/rapport-building',
-                'description': 'Communication techniques for establishing credibility and trust quickly'
-            })
-    
-    # Generate next scenario recommendations
-    scenario_recommendations = []
-    
-    if overall_score >= 88:
-        scenario_recommendations = [
-            {
-                'title': 'Multi-Stakeholder Account Meeting',
-                'difficulty': 'Advanced',
-                'description': 'Navigate complex group dynamics with department heads, formulary committee members, and budget holders',
-                'personas': ['Chief of Cardiology', 'Pharmacy Director', 'CFO'],
-                'estimated_time': '25-30 min',
-                'skills_developed': ['Stakeholder management', 'Budget negotiation', 'Group influence']
-            },
-            {
-                'title': 'Competitive Displacement Scenario',
-                'difficulty': 'Advanced',
-                'description': 'Convince an HCP to switch from a well-established competitor product',
-                'personas': ['Dr. Sarah Chen (Advanced Mode)'],
-                'estimated_time': '20-25 min',
-                'skills_developed': ['Competitive positioning', 'Change management', 'Risk mitigation']
-            },
-            {
-                'title': 'Crisis Management: Adverse Event Discussion',
-                'difficulty': 'Expert',
-                'description': 'Address concerns following reported adverse events while maintaining trust',
-                'personas': ['Dr. Emily Watson (Concerned Mode)'],
-                'estimated_time': '15-20 min',
-                'skills_developed': ['Crisis communication', 'Empathy under pressure', 'Regulatory compliance']
-            }
-        ]
-    elif overall_score >= 80:
-        scenario_recommendations = [
-            {
-                'title': 'Deep Objection Handling Practice',
-                'difficulty': 'Intermediate-Advanced',
-                'description': 'Face 5+ consecutive objections from a highly skeptical HCP',
-                'personas': ['Dr. Sarah Chen', 'Dr. Emily Watson'],
-                'estimated_time': '15-20 min',
-                'skills_developed': ['Persistence', 'Objection reframing', 'Emotional resilience']
-            },
-            {
-                'title': 'Payer Access Discussion',
-                'difficulty': 'Intermediate',
-                'description': 'Navigate reimbursement and formulary access conversations',
-                'personas': ['Dr. Michael Roberts (Budget-Conscious)'],
-                'estimated_time': '15-18 min',
-                'skills_developed': ['Health economics', 'Value communication', 'Access strategies']
-            }
-        ]
-    else:
-        scenario_recommendations = [
-            {
-                'title': 'Foundation Practice: Product Introduction',
-                'difficulty': 'Beginner-Intermediate',
-                'description': 'Build confidence with structured product presentations',
-                'personas': ['Dr. Michael Roberts (Receptive Mode)'],
-                'estimated_time': '12-15 min',
-                'skills_developed': ['Message clarity', 'Feature-benefit linking', 'Closing techniques']
-            },
-            {
-                'title': 'Single Objection Focus',
-                'difficulty': 'Intermediate',
-                'description': 'Practice addressing one specific objection type in depth',
-                'personas': ['Dr. Michael Roberts'],
-                'estimated_time': '10-12 min',
-                'skills_developed': ['Focused objection mastery', 'Confidence building']
-            }
-        ]
+    # Scenario recommendations
+    scenario_recommendations = [
+        {
+            'title': 'Deep Objection Handling Practice',
+            'difficulty': 'Intermediate-Advanced',
+            'description': 'Face 5+ consecutive objections from a highly skeptical HCP',
+            'personas': ['Dr. Sarah Chen', 'Dr. Emily Watson'],
+            'estimated_time': '15-20 min',
+            'skills_developed': ['Persistence', 'Objection reframing', 'Emotional resilience']
+        },
+        {
+            'title': 'Multi-Stakeholder Account Meeting',
+            'difficulty': 'Advanced',
+            'description': 'Navigate complex group dynamics with department heads, formulary committee members, and budget holders',
+            'personas': ['Chief of Cardiology', 'Pharmacy Director', 'CFO'],
+            'estimated_time': '25-30 min',
+            'skills_developed': ['Stakeholder management', 'Budget negotiation', 'Group influence']
+        }
+    ]
     
     return {
         'overall_score': overall_score,
@@ -319,7 +221,7 @@ def generate_ai_assessment(messages, persona):
         'insights': insights,
         'lms_recommendations': lms_recommendations,
         'scenario_recommendations': scenario_recommendations,
-        'skill_level_update': 'advanced' if overall_score >= 88 else 'intermediate' if overall_score >= 75 else 'beginner'
+        'skill_level_update': 'intermediate'
     }
 
 # Sidebar Navigation
@@ -511,7 +413,7 @@ elif st.session_state.page == 'personas':
             if st.button("✅ End Session", use_container_width=True, type="primary"):
                 # Generate AI assessment
                 with st.spinner("🤖 AI is analyzing your performance..."):
-                    time.sleep(2)  # Simulate processing
+                    time.sleep(2)
                     st.session_state.ai_assessment = generate_ai_assessment(
                         st.session_state.messages, 
                         personas[st.session_state.selected_persona]
@@ -578,7 +480,7 @@ elif st.session_state.page == 'personas':
             
             st.rerun()
     
-    # RESULTS SCREEN
+    # RESULTS SCREEN WITH AI ASSESSMENT
     elif st.session_state.session_complete:
         assessment = st.session_state.ai_assessment
         
@@ -592,7 +494,7 @@ elif st.session_state.page == 'personas':
         col1, col2, col3 = st.columns(3)
         
         with col1:
-            score_delta = assessment['overall_score'] - 80  # Compare to baseline
+            score_delta = assessment['overall_score'] - 80
             st.metric(label="Overall Score", value=assessment['overall_score'], delta=f"{score_delta:+d} vs baseline")
         
         with col2:
